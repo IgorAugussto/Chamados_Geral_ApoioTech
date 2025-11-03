@@ -6,41 +6,45 @@ import plotly.express as px
 
 def mostrar_dashboard(df):
     st.title("📊 Dashboard de Chamados")
+    
+    # No início do arquivo dashboard_view.py, adicione:
+    print("Colunas disponíveis:", df.columns.tolist())
+    
 
     # --- KPIs ---
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Chamados Totais", len(df))
-    col2.metric("Abertos", (df["Status"] == "Aberto").sum())
-    col3.metric("Fechados", (df["Status"] == "Fechado").sum())
+    #col1, col2, col3 = st.columns(3)
+    #col1.metric("Chamados Totais", len(df))
+    #col2.metric("Abertos", (df["Status"] == "Aberto").sum())
+    #col3.metric("Fechados", (df["Status"] == "Fechado").sum())
 
     # --- Filtros ---
-    st.sidebar.header("Filtros")
-    status_filtro = st.sidebar.selectbox(
-        "Filtrar por Status", ["Todos"] + list(df["Status"].unique())
-    )
-    prioridade_filtro = st.sidebar.multiselect(
-        "Filtrar por Prioridade", df["Prioridade"].unique(), default=df["Prioridade"].unique()
-    )
+    #st.sidebar.header("Filtros")
+    #status_filtro = st.sidebar.selectbox(
+    #       "Filtrar por Status", ["Todos"] + list(df["Status"].unique())
+    #)
+    #prioridade_filtro = st.sidebar.multiselect(
+     #   "Filtrar por Prioridade", df["Prioridade"].unique(), default=df["Prioridade"].unique()
+    #)
 
-    if status_filtro != "Todos":
-        df = df[df["Status"] == status_filtro]
-    df = df[df["Prioridade"].isin(prioridade_filtro)]
+    #if status_filtro != "Todos":
+       # df = df[df["Status"] == status_filtro]
+    #df = df[df["Prioridade"].isin(prioridade_filtro)]
 
-    st.divider()
+    #st.divider()
 
     # --- Gráfico por Prioridade ---
-    fig1 = px.bar(
-        df,
-        x="Prioridade",
-        color="Status",
-        title="Chamados por Prioridade e Status",
-        barmode="group",
-        text_auto=True
-    )
-    st.plotly_chart(fig1, use_container_width=True)
+    #fig1 = px.bar(
+    #    df,
+     #   x="Prioridade",
+      #  color="Status",
+       # title="Chamados por Prioridade e Status",
+        #barmode="group",
+        #text_auto=True
+    #)
+    #st.plotly_chart(fig1, use_container_width=True)
 
     # --- Gráfico por Tipo de Chamado ---
-    if "Tipo de Chamado" in df.columns:
+    #if "Tipo de Chamado" in df.columns:
         fig2 = px.pie(df, names="Tipo de Chamado", title="Distribuição por Tipo de Chamado")
         st.plotly_chart(fig2, use_container_width=True)
 
