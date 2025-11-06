@@ -3,6 +3,7 @@
 
 import streamlit as st
 import plotly.express as px
+import pandas as pd
 
 def mostrar_dashboard(df):
     st.title("📊 Dashboard de Chamados")
@@ -53,12 +54,40 @@ def mostrar_dashboard(df):
     else:
         st.info("Nenhum chamado com prioridade definida")
 
-    #--- Gráfico por Tipo de Chamado ---
+        #--- Gráfico por Tipo de Chamado ---
     if "Tickettype" in df.columns:
-        df_tipo = df[df["Tickettype"].notna()]
+        df_tipo = df[df["Tickettype"].notna()].copy()
+
         if not df_tipo.empty:
-            fig2 = px.pie(df_tipo, names="Tickettype", title="Distribuição por Tipo de Chamado")
+            # Conta quantos por tipo
+            contagem = df_tipo["Tickettype"].value_counts().reset_index()
+            contagem.columns = ["Tickettype", "Quantidade"]
+
+            # Define quantos mostrar (ex: top 8)
+            top_n = 8
+            top_tipos = contagem.head(top_n)
+
+            # O resto vira "Outros"
+            outros = pd.DataFrame({
+                "Tickettype": ["Outros"],
+                "Quantidade": [contagem["Quantidade"].iloc[top_n:].sum()]
+            })
+
+            # Junta top + outros
+            dados_grafico = pd.concat([top_tipos, outros], ignore_index=True)
+
+            # Gráfico de pizza LIMPO
+            fig2 = px.pie(
+                dados_grafico,
+                names="Tickettype",
+                values="Quantidade",
+                title="Distribuição por Tipo de Chamado (Top 8 + Outros)",
+                hole=0.3  # donut (fica mais moderno)
+            )
+            fig2.update_traces(textinfo="percent+label")  # mostra % e nome na fatia
             st.plotly_chart(fig2, use_container_width=True)
+        else:
+            st.info("Nenhum tipo de chamado definido")
 
     # --- SLA ---
     if "Dias Restantes" in df.columns:
@@ -69,6 +98,17 @@ def mostrar_dashboard(df):
         else:
             st.success("✅ Nenhum chamado próximo do vencimento")
 
-    # --- Tabela completa ---
+        # --- Tabela completa (ordenada por SLA) ---
     st.subheader("📋 Chamados Recentes")
-    st.dataframe(df.tail(15))
+
+    # Cria uma cópia para não bagunçar os filtros
+    df_tabela = df.copy()
+
+    # Se tiver a coluna de data do SLA, ordena por ela
+    if "Slasexpirationdate" in df_tabela.columns:
+        df_tabela = df_tabela.sort_values("Slasexpirationdate", ascending=True)  # mais antigo primeiro
+    else:
+        df_tabela = df_tabela.sort_values("Id", ascending=False)  # senão, por ID (mais novo)
+
+    # Mostra só os 15 primeiros
+    st.dataframe(df_tabela.head(15))
