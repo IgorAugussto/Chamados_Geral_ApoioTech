@@ -36,5 +36,4 @@ if uploaded_file is not None:
     st.sidebar.success("Seu arquivo foi carregado!")
 
 # ===== MOSTRA O DASHBOARD =====
-st.title("📊 Dashboard de Chamados - ApoioTech")
 mostrar_dashboard(df)
