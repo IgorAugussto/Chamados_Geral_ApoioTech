@@ -22,7 +22,7 @@ def mostrar_dashboard(df):
     prioridade_filtro = st.sidebar.multiselect(
         "Filtrar por Prioridade",
         prioridades_disponiveis,
-        default=prioridades_disponiveis
+    #    default=prioridades_disponiveis
     )
 
     if status_filtro != "Todos":
@@ -32,19 +32,19 @@ def mostrar_dashboard(df):
         df = df[df["Priority"].isin(prioridade_filtro)]
 
     # --- Gráfico por prioridade ---
-    df_prioridade = df[df["Priority"].notna()]
-    if not df_prioridade.empty:
-        fig1 = px.bar(
-            df_prioridade,
-            x="Priority",
-            color="Status",
-            title="Chamados por Prioridade e Status",
-            barmode="group",
-            text_auto=True
-        )
-        st.plotly_chart(fig1, use_container_width=True)
-    else:
-        st.info("Nenhum chamado com prioridade definida")
+    #df_prioridade = df[df["Priority"].notna()]
+    #if not df_prioridade.empty:
+     #   fig1 = px.bar(
+      #      df_prioridade,
+       #     x="Priority",
+        #    color="Status",
+         #   title="Chamados por Prioridade e Status",
+          #  barmode="group",
+           # text_auto=True
+        #)
+        #st.plotly_chart(fig1, use_container_width=True)
+   # else:
+    #    st.info("Nenhum chamado com prioridade definida")
 
     # --- Gráfico por tipo ---
     if "Tickettype" in df.columns:
