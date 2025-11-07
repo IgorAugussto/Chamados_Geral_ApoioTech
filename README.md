@@ -39,3 +39,42 @@ Criar um **dashboard web interativo** para análise rápida de chamados técnico
 ---
 
 ## 🛠️ Tecnologias Utilizadas
+
+Python 3.11
+├── Streamlit          → interface web
+├── Pandas             → tratamento de dados
+├── Plotly Express     → gráficos interativos
+├── Openpyxl           → leitura do Excel
+└── GitHub + Streamlit Community Cloud → deploy gratuito
+
+---
+
+## 📁 Estrutura do Projeto
+
+Chamados_Geral_ApoioTech/
+├── app.py                     → arquivo principal (Streamlit)
+├── gerar_dados_ficticios.py   → script que cria os dados 100% fictícios
+├── teste_portfolio/
+│   └── data/
+│       └── Chamados Geral - API Periodo.xlsx  ← dados fictícios (2407 linhas)
+├── services/
+│   └── data_service.py        → carregamento e preparação dos dados
+├── views/
+│   └── dashboard_view.py      → todos os gráficos e KPIs
+├── venv/                      → ambiente virtual
+
+
+---
+
+## 🔒 Dados 100% Fictícios (Seguro para Portfólio)
+
+> **Nenhum dado real da empresa foi usado.**
+
+- 2.407 registros gerados por script Python  
+- Estrutura idêntica ao Milldesk original (40 colunas)  
+- Nomes, e-mails, descrições, IDs, prazos → tudo inventado  
+- Distribuição de SLA, prioridades e tipos mantida (gráficos ficam realistas)  
+
+**Script de geração (incluído):**
+```bash
+python gerar_dados_ficticios.py
