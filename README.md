@@ -41,11 +41,11 @@ Criar um **dashboard web interativo** para análise rápida de chamados técnico
 ## 🛠️ Tecnologias Utilizadas
 
 Python 3.11
-├── Streamlit          → interface web
+´´´├── Streamlit          → interface web
 ├── Pandas             → tratamento de dados
 ├── Plotly Express     → gráficos interativos
 ├── Openpyxl           → leitura do Excel
-└── GitHub + Streamlit Community Cloud → deploy gratuito
+└── GitHub + Streamlit Community Cloud → deploy gratuito´´´
 
 ---
 
