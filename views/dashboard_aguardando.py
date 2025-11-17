@@ -6,6 +6,27 @@ import re
 
 def mostrar_dashboard_aguardando(df):
     st.title("Dashboard Aguardando Aceite")
+    
+    # =========================================================
+    # CORRIGE O CURSOR CHATO DO SELECTBOX
+    # =========================================================
+    st.markdown("""
+    <style>
+        /* Remove cursor de texto dos selectbox, multiselect e radio */
+        div[data-baseweb="select"] > div:hover,
+        div[data-baseweb="select"] > div,
+        div[data-testid="stSelectbox"] > div:hover,
+        div[data-testid="stMultiSelect"] > div:hover,
+        div[data-testid="stRadio"] > div:hover {
+            cursor: pointer !important;
+        }
+    
+        /* Garante que o dropdown em si também tenha cursor normal */
+        div[role="listbox"] {
+            cursor: pointer !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
     # =========================================================
     # 1. KPI
@@ -52,25 +73,56 @@ def mostrar_dashboard_aguardando(df):
     else:
         df_filtrado = df.copy()
 
+        # =========================================================
+    # 5. GRÁFICO: Barras Duplas → Dentro do Prazo vs Atrasados
     # =========================================================
-    # 5. GRÁFICO (com filtro)
-    # =========================================================
-    st.subheader("Distribuição por Técnico")
-    contagem = df_filtrado["Técnico"].value_counts().reset_index()
-    contagem.columns = ["Técnico", "Quantidade"]
+    st.subheader("Distribuição por Status de Prazo")
 
-    if not contagem.empty:
-        fig = px.pie(
-            contagem,
-            names="Técnico",
-            values="Quantidade",
-            hole=0.3,
-            color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+    # Classifica os chamados
+    df_filtrado["Status Prazo"] = df_filtrado["Geral_Numerico"].apply(
+        lambda x: "Atrasado" if pd.notna(x) and x <= 0 else "Dentro do Prazo" if pd.notna(x) else "Sem Prazo"
+    )
+
+    # Conta por técnico e status
+    df_grafico = (
+        df_filtrado.groupby(["Técnico", "Status Prazo"])
+        .size()
+        .reset_index(name="Quantidade")
+    )
+
+    # Ordem desejada nas barras
+    ordem_status = ["Dentro do Prazo", "Atrasado"]
+    df_grafico["Status Prazo"] = pd.Categorical(
+        df_grafico["Status Prazo"], categories=ordem_status, ordered=True
+    )
+    df_grafico = df_grafico.sort_values(["Técnico", "Status Prazo"])
+
+    if not df_grafico.empty:
+        fig = px.bar(
+            df_grafico,
+            x="Técnico",
+            y="Quantidade",
+            color="Status Prazo",
+            title="Chamados Dentro do Prazo vs Atrasados por Técnico",
+            barmode="group",
+            color_discrete_map={
+                "Dentro do Prazo": "#2ecc71",   # verde bonito
+                "Atrasado": "#e74c3c"           # vermelho forte
+            },
+            text="Quantidade",
+            category_orders={"Status Prazo": ordem_status}
         )
-        fig.update_traces(textinfo="percent+label")
+
+        fig.update_traces(textposition="outside")
+        fig.update_layout(
+            xaxis_title="Técnico",
+            yaxis_title="Quantidade de Chamados",
+            legend_title="Status do Prazo",
+            bargap=0.3
+        )
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("Nenhum chamado para o técnico selecionado.")
+        st.info("Nenhum chamado para exibir no gráfico.")
 
     # =========================================================
     # 6. PRAZO CRÍTICO (com filtro)
