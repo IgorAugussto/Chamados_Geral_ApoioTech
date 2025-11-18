@@ -72,7 +72,7 @@ st.sidebar.markdown("---")
 st.sidebar.caption(f"Última atualização automática: {pd.Timestamp.now().strftime('%d/%m/%Y %H:%M:%S')}")
 
 if st.sidebar.button("🔄 Atualizar Dados do Google Sheets Agora", key="btn_refresh", width="stretch"):
-    carregar_planilha_google.cache_clear()   # ← Limpa só o cache dos dados do Sheets
+    st.cache_data.clear()   # ← Limpa só o cache dos dados do Sheets
     st.success("Dados atualizados manualmente!")
     st.rerun()
 
