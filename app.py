@@ -7,6 +7,8 @@ from services.data_service import (
 )
 #from views.dashboard_view_INATIVO import mostrar_dashboard
 from views.dashboard_aguardando import mostrar_dashboard_aguardando
+from datetime import datetime
+import pytz
 
 # ===== CONFIGURAÇÃO GERAL =====
 st.set_page_config(page_title="Controle de Chamados - ApoioTech", layout="wide")
@@ -69,7 +71,9 @@ st.sidebar.title("Dashboard de Chamados")
 
 # ===== BOTÃO DE ATUALIZAÇÃO MANUAL + INFO DE ÚLTIMA ATUALIZAÇÃO =====
 st.sidebar.markdown("---")
-st.sidebar.caption(f"Última atualização automática: {pd.Timestamp.now().strftime('%d/%m/%Y %H:%M:%S')}")
+tz = pytz.timezone('America/Sao_Paulo')
+agora_brasil = datetime.now(tz)
+st.sidebar.caption(f"Última atualização automática: {agora_brasil.strftime('%d/%m/%Y %H:%M:%S')} (Horário de Brasília)")
 
 if st.sidebar.button("🔄 Atualizar Dados do Google Sheets Agora", key="btn_refresh", width="stretch"):
     st.cache_data.clear()   # ← Limpa só o cache dos dados do Sheets
