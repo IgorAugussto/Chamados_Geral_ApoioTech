@@ -37,11 +37,11 @@ def mostrar_dashboard_aguardando(df):
     # =========================================================
     # 2. Botão de Atualização
     # =========================================================
-    if st.button("Atualizar Dados do Google Sheets", key="refresh_google"):
-        load_data.cache_clear()
-        st.cache_data.clear()
-        st.success("Dados atualizados manualmente!")
-        st.rerun()
+    
+    #if st.button("Atualizar Dados do Google Sheets", key="refresh_google"):
+        #st.cache_data.clear()
+        #st.success("Dados atualizados manualmente!")
+        #st.rerun()
 
     # =========================================================
     # 3. EXTRAIR NÚMERO DA COLUNA "GERAL" (VERSÃO 100% CORRETA)

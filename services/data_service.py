@@ -42,42 +42,29 @@ def carregar_excel(uploaded_file):
     return preparar_dados(df_raw)
 
 # ===== CARREGAR PLANILHA DO GOOGLE DRIVE =====
-@st.cache_data(ttl=300)
-def carregar_planilha_google(_gc):
+@st.cache_data(ttl=600)  # 10 minutos de cache automático (ajuste como quiser)
+def carregar_planilha_google() -> pd.DataFrame:
+    """
+    Carrega os dados da planilha Google Sheets com cache inteligente.
+    Agora você pode chamar .cache_clear() sem erro!
+    """
+    gc = get_google_credentials()
+    if gc is None:
+        return pd.DataFrame()  # retorna vazio se não conectar
+
     try:
-        sheet = _gc.open("Controle Chamados").sheet1
-        
-        # ===== DEBUG DETALHADO =====
-        #st.write("### 🔍 DEBUG ULTRA-DETALHADO")
-        
+        sheet = gc.open("Controle Chamados").sheet1
         all_values = sheet.get_all_values()
         
-        #st.write(f"**Total de linhas retornadas:** {len(all_values)}")
-        #st.write(f"**Total de colunas na linha 1:** {len(all_values[0])}")
-        
-        # Mostra TODOS os headers com seus índices
-        #st.write("\n**TODOS os headers (com índices):**")
-        #for idx, header in enumerate(all_values[0]):
-            #st.write(f"  Índice {idx}: '{header}'")
-        
-        # Mostra a linha 2 COMPLETA (todas as colunas)
-        #st.write(f"\n**Linha 2 COMPLETA (total de {len(all_values[1])} colunas):**")
-        #for idx, valor in enumerate(all_values[1]):
-            #st.write(f"  Coluna {idx} ({all_values[0][idx] if idx < len(all_values[0]) else 'SEM HEADER'}): `{valor}`")
-        
-        #st.write("\n**Linha 12 COMPLETA:**")
-        #if len(all_values) > 11:
-            #for idx, valor in enumerate(all_values[11]):
-                #st.write(f"  Coluna {idx} ({all_values[0][idx] if idx < len(all_values[0]) else 'SEM HEADER'}): `{valor}`")
-        
-        #st.write("---")
-        # ===== FIM DEBUG =====
-        
-        # Resto do código...
+        if len(all_values) <= 1:
+            st.warning("Planilha vazia ou sem dados.")
+            return pd.DataFrame()
+
         headers = all_values[0]
         data_rows = all_values[1:]
         df = pd.DataFrame(data_rows, columns=headers)
         
+        # Limpeza e padronização
         df.columns = df.columns.str.strip()
         
         expected = ["Id", "Data Criação", "Técnico", "Dias Restantes PMA", "Dias Restantes Geral"]
@@ -89,9 +76,10 @@ def carregar_planilha_google(_gc):
             df["Data Criação"] = pd.to_datetime(df["Data Criação"], errors="coerce", dayfirst=True)
 
         return df
+
     except Exception as e:
-        st.error(f"Erro ao carregar planilha: {e}")
-        return None
+        st.error(f"Erro ao carregar planilha do Google: {e}")
+        return pd.DataFrame()
 
 # Inicializa conexão com Google Sheets
 def get_google_credentials():
