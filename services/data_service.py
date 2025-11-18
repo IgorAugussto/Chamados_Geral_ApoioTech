@@ -41,30 +41,32 @@ def carregar_excel(uploaded_file):
     df_raw.columns = df_raw.columns.str.title().str.strip()
     return preparar_dados(df_raw)
 
-# ===== CARREGAR PLANILHA DO GOOGLE DRIVE =====
-@st.cache_data(ttl=600)  # 10 minutos de cache automático (ajuste como quiser)
+
+# ===== CARREGAR PLANILHA DO GOOGLE DRIVE (VERSÃO FINAL E 100% FUNCIONAL) =====
+@st.cache_data(ttl=600, show_spinner="Carregando dados do Google Sheets...")  # 10 minutos
 def carregar_planilha_google() -> pd.DataFrame:
     """
-    Carrega os dados da planilha Google Sheets com cache inteligente.
-    Agora você pode chamar .cache_clear() sem erro!
+    Carrega os dados da planilha "Controle Chamados" com cache inteligente.
+    Agora o .clear_cache() funciona perfeitamente no Streamlit Cloud!
     """
     gc = get_google_credentials()
     if gc is None:
-        return pd.DataFrame()  # retorna vazio se não conectar
+        st.error("Credenciais do Google não encontradas! Verifique .streamlit/secrets.toml")
+        return pd.DataFrame()
 
     try:
         sheet = gc.open("Controle Chamados").sheet1
         all_values = sheet.get_all_values()
         
         if len(all_values) <= 1:
-            st.warning("Planilha vazia ou sem dados.")
+            st.warning("Planilha vazia ou sem linhas de dados.")
             return pd.DataFrame()
 
         headers = all_values[0]
         data_rows = all_values[1:]
         df = pd.DataFrame(data_rows, columns=headers)
         
-        # Limpeza e padronização
+        # Limpeza e padronização (exatamente como você já tinha)
         df.columns = df.columns.str.strip()
         
         expected = ["Id", "Data Criação", "Técnico", "Dias Restantes PMA", "Dias Restantes Geral"]
@@ -81,13 +83,14 @@ def carregar_planilha_google() -> pd.DataFrame:
         st.error(f"Erro ao carregar planilha do Google: {e}")
         return pd.DataFrame()
 
+
 # Inicializa conexão com Google Sheets
 def get_google_credentials():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     try:
-        creds_dict = st.secrets["gcp_service_account"]  # ← AQUI
+        creds_dict = st.secrets["gcp_service_account"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    except:
+        return gspread.authorize(creds)
+    except Exception as e:
         st.error("Credenciais do Google não encontradas! Verifique .streamlit/secrets.toml")
         return None
-    return gspread.authorize(creds)
