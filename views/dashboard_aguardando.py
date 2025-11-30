@@ -157,18 +157,8 @@ def mostrar_dashboard_aguardando(df):
         )
 
         # === ADICIONA O TOTAL BEM GRANDE EM CIMA DE CADA GRUPO ===
-        for idx, row in total_por_tecnico.iterrows():
-            fig.add_annotation(
-                x=row["Técnico"],
-                y=row["Total"],
-                text=f"<b>{int(row['Total'])}</b>",
-                font=dict(size=16, color="#2c3e50"),
-                showarrow=False,
-                yshift=10,
-                xanchor="center"
-            )
 
-        fig.update_traces(textposition="inside")
+        fig.update_traces(textposition="outside")
         fig.update_layout(
             xaxis_title="Técnico",
             yaxis_title="Quantidade de Chamados",
@@ -207,7 +197,14 @@ def mostrar_dashboard_aguardando(df):
     # 7. TABELA COMPLETA (com filtro)
     # =========================================================
     st.subheader("Todos os Chamados")
-    df_todos = df_filtrado[["Id", "Data Criação", "Técnico", "Dias Restantes Geral"]].copy()
+    # Remove da tabela "Todos" os que já estão no "Crítico"
+    ids_criticos = df_critico["Id"].tolist()
+
+    df_todos = df_filtrado[~df_filtrado["Id"].isin(ids_criticos)][
+        ["Id", "Data Criação", "Técnico", "Dias Restantes Geral"]
+    ].copy()
+
     df_todos["Data Criação"] = pd.to_datetime(df_todos["Data Criação"], errors="coerce").dt.strftime("%d/%m/%Y")
     df_todos = df_todos.sort_values("Id", ascending=False)
+
     st.dataframe(df_todos, use_container_width=True)
